@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameDay — Harvard-Yale: The Rivalry Since 1875</title>
+<meta name="description" content="Interactive history of the Harvard-Yale football rivalry — every score, famous plays, and 150 years of stats.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a25;--border:#2a2a3a;--text:#e8e8f0;--dim:#8888a0;--accent:#c41e3a;--accent2:#00356b;--gold:#d4a843;--green:#2ecc71}
+body{font-family:'Georgia','Times New Roman',serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--gold);text-decoration:none}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+
+/* Hero */
+.hero{text-align:center;padding:60px 24px 40px;background:linear-gradient(180deg,#0d0d18 0%,var(--bg) 100%);border-bottom:1px solid var(--border)}
+.hero h1{font-size:3rem;letter-spacing:0.08em;font-weight:400;text-transform:uppercase;margin-bottom:8px}
+.hero .subtitle{font-size:1.1rem;color:var(--dim);font-style:italic;margin-bottom:24px}
+.hero .big-stat{display:flex;justify-content:center;gap:48px;margin-top:32px;flex-wrap:wrap}
+.big-stat .team{text-align:center}
+.big-stat .team .shield{font-size:2.8rem;margin-bottom:4px}
+.big-stat .team .name{font-size:0.85rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--dim);margin-bottom:4px}
+.big-stat .team .wins{font-size:2.4rem;font-weight:700}
+.big-stat .team.harvard .wins{color:var(--accent)}
+.big-stat .team.yale .wins{color:var(--accent2)}
+.big-stat .vs{display:flex;align-items:center;font-size:1.2rem;color:var(--dim)}
+.ties-line{margin-top:12px;color:var(--dim);font-size:0.95rem}
+
+/* Stats bar */
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;padding:32px 0}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;text-align:center}
+.stat-card .val{font-size:1.8rem;font-weight:700;color:var(--gold)}
+.stat-card .label{font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--dim);margin-top:4px}
+
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-top:24px}
+.tab{padding:12px 24px;cursor:pointer;color:var(--dim);font-size:0.9rem;text-transform:uppercase;letter-spacing:0.08em;border-bottom:2px solid transparent;transition:all 0.2s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-content{display:none;padding:24px 0}
+.tab-content.active{display:block}
+
+/* Timeline */
+.decade-group{margin-bottom:32px}
+.decade-group h3{font-size:1rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.game-row{display:grid;grid-template-columns:80px 1fr 140px;gap:12px;padding:10px 12px;border-radius:6px;align-items:center;font-size:0.9rem}
+.game-row:nth-child(even){background:var(--surface)}
+.game-row .year{color:var(--dim);font-variant-numeric:tabular-nums}
+.game-row .score{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.game-row .score .h{color:var(--accent)}
+.game-row .score .y{color:var(--accent2)}
+.game-row .note{color:var(--dim);font-style:italic;font-size:0.82rem}
+.winner-h{border-left:3px solid var(--accent);padding-left:9px!important}
+.winner-y{border-left:3px solid var(--accent2);padding-left:9px!important}
+.winner-t{border-left:3px solid var(--dim);padding-left:9px!important}
+
+/* Famous Moments */
+.moment-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:16px}
+.moment-card .moment-year{font-size:0.8rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold);margin-bottom:4px}
+.moment-card h4{font-size:1.15rem;margin-bottom:8px}
+.moment-card p{color:var(--dim);font-size:0.92rem;line-height:1.7}
+
+/* Streaks */
+.streak-bar{display:flex;height:18px;border-radius:4px;overflow:hidden;margin:16px 0}
+.streak-bar .seg{transition:all 0.2s}
+.streak-bar .seg.h{background:var(--accent)}
+.streak-bar .seg.y{background:var(--accent2)}
+.streak-bar .seg.t{background:var(--border)}
+.streak-legend{display:flex;gap:20px;font-size:0.8rem;color:var(--dim)}
+.streak-legend span::before{content:'';display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.streak-legend .lh::before{background:var(--accent)}
+.streak-legend .ly::before{background:var(--accent2)}
+.streak-legend .lt::before{background:var(--border)}
+
+/* Search/Filter */
+.filter-bar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.filter-bar input,.filter-bar select{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:6px;font-size:0.9rem;font-family:inherit}
+.filter-bar input{flex:1;min-width:200px}
+.filter-bar select{min-width:140px}
+
+/* Footer */
+footer{text-align:center;padding:40px 24px;color:var(--dim);font-size:0.8rem;border-top:1px solid var(--border);margin-top:48px}
+
+@media(max-width:700px){
+  .hero h1{font-size:2rem}
+  .big-stat{gap:24px}
+  .game-row{grid-template-columns:60px 1fr 100px;font-size:0.82rem}
+  .tab{padding:10px 14px;font-size:0.78rem}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>GameDay</h1>
+  <p class="subtitle">Harvard vs Yale — The Rivalry Since 1875</p>
+  <div class="big-stat">
+    <div class="team harvard">
+      <div class="shield">🟥</div>
+      <div class="name">Harvard</div>
+      <div class="wins" id="h-wins">—</div>
+    </div>
+    <div class="vs">–</div>
+    <div class="team yale">
+      <div class="shield">🟦</div>
+      <div class="name">Yale</div>
+      <div class="wins" id="y-wins">—</div>
+    </div>
+  </div>
+  <p class="ties-line"><span id="ties-count">—</span> Ties &nbsp;·&nbsp; <span id="total-games">—</span> Games Played</p>
+</div>
+
+<div class="container">
+  <div class="stats-bar" id="stats-bar"></div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="timeline">All Games</div>
+    <div class="tab" data-tab="moments">Famous Moments</div>
+    <div class="tab" data-tab="streaks">Streaks & Trends</div>
+  </div>
+
+  <div class="tab-content active" id="tab-timeline">
+    <div class="filter-bar">
+      <input type="text" id="search" placeholder="Search by year, score, or note...">
+      <select id="filter-winner"><option value="all">All Results</option><option value="H">Harvard Wins</option><option value="Y">Yale Wins</option><option value="T">Ties</option></select>
+      <select id="filter-era"><option value="all">All Eras</option></select>
+    </div>
+    <div id="timeline"></div>
+  </div>
+
+  <div class="tab-content" id="tab-moments">
+    <div id="moments"></div>
+  </div>
+
+  <div class="tab-content" id="tab-streaks">
+    <h3 style="margin-bottom:12px">Win Distribution Since 1875</h3>
+    <div class="streak-bar" id="streak-bar"></div>
+    <div class="streak-legend">
+      <span class="lh">Harvard</span>
+      <span class="ly">Yale</span>
+      <span class="lt">Tie</span>
+    </div>
+    <div id="streak-stats" style="margin-top:24px"></div>
+  </div>
+</div>
+
+<footer>
+  GameDay — A Project PS product &nbsp;·&nbsp; Data sourced from NCAA historical records
+</footer>
+
+<script>
+const GAMES=[
+{y:1875,h:4,yl:0,n:"First ever meeting, Hamilton Park, New Haven"},
+{y:1876,h:1,yl:0},{y:1877,h:0,yl:1},{y:1878,h:1,yl:0},{y:1879,h:0,yl:2},
+{y:1880,h:1,yl:0},{y:1881,h:4,yl:0},{y:1882,h:1,yl:0},{y:1883,h:23,yl:2},
+{y:1884,h:0,yl:48},{y:1885,h:4,yl:0},{y:1886,h:29,yl:4},{y:1887,h:17,yl:8},
+{y:1888,h:17,yl:6},{y:1889,h:6,yl:0},{y:1890,h:12,yl:6},{y:1891,h:0,yl:6},
+{y:1892,h:0,yl:6},{y:1893,h:0,yl:6},{y:1894,h:4,yl:12},{y:1895,h:0,yl:4},
+{y:1896,h:6,yl:0},{y:1897,h:0,yl:0,n:"Scoreless tie"},{y:1898,h:17,yl:0},
+{y:1899,h:0,yl:0,n:"Scoreless tie"},{y:1900,h:0,yl:28},{y:1901,h:22,yl:0},
+{y:1902,h:0,yl:23},{y:1903,h:16,yl:0},{y:1904,h:0,yl:12},{y:1905,h:6,yl:0},
+{y:1906,h:0,yl:6},{y:1907,h:0,yl:12},{y:1908,h:4,yl:0},{y:1909,h:8,yl:0,n:"Opening of Harvard Stadium"},
+{y:1910,h:0,yl:0,n:"Scoreless tie"},{y:1911,h:0,yl:0,n:"Scoreless tie"},
+{y:1912,h:20,yl:0},{y:1913,h:15,yl:5},{y:1914,h:36,yl:0},
+{y:1915,h:41,yl:0},{y:1916,h:3,yl:6},{y:1917,h:0,yl:0,n:"Wartime scoreless tie"},
+{y:1919,h:10,yl:3,n:"Resumed after WWI"},{y:1920,h:9,yl:0},{y:1921,h:10,yl:3},
+{y:1922,h:10,yl:3},{y:1923,h:0,yl:13},{y:1924,h:6,yl:19},{y:1925,h:0,yl:0,n:"Scoreless tie"},
+{y:1926,h:7,yl:0},{y:1927,h:14,yl:0},{y:1928,h:17,yl:0},{y:1929,h:10,yl:6},
+{y:1930,h:13,yl:0},{y:1931,h:3,yl:0},{y:1932,h:19,yl:0},{y:1933,h:19,yl:6},
+{y:1934,h:0,yl:14},{y:1935,h:7,yl:14},{y:1936,h:13,yl:7},{y:1937,h:13,yl:6},
+{y:1938,h:7,yl:0},{y:1939,h:7,yl:20},{y:1940,h:28,yl:0},{y:1941,h:14,yl:0},
+{y:1942,h:3,yl:7},{y:1943,h:7,yl:0,n:"Wartime game"},{y:1944,h:7,yl:13},
+{y:1945,h:0,yl:28},{y:1946,h:7,yl:27},{y:1947,h:21,yl:31},{y:1948,h:20,yl:7},
+{y:1949,h:6,yl:29},{y:1950,h:6,yl:14},{y:1951,h:21,yl:14},
+{y:1952,h:14,yl:41},{y:1953,h:13,yl:0},{y:1954,h:13,yl:9},{y:1955,h:7,yl:21},
+{y:1956,h:14,yl:42},{y:1957,h:0,yl:54,n:"Yale's highest ever score"},
+{y:1958,h:28,yl:0},{y:1959,h:35,yl:6},{y:1960,h:6,yl:39},
+{y:1961,h:27,yl:0},{y:1962,h:14,yl:6},{y:1963,h:6,yl:20},{y:1964,h:18,yl:14},
+{y:1965,h:0,yl:36},{y:1966,h:0,yl:17},{y:1967,h:0,yl:24},
+{y:1968,h:29,yl:29,n:"'Harvard Beats Yale 29-29' — legendary 16-pt comeback"},
+{y:1969,h:7,yl:0},{y:1970,h:14,yl:12},{y:1971,h:35,yl:16},{y:1972,h:0,yl:28},
+{y:1973,h:0,yl:35},{y:1974,h:21,yl:16},{y:1975,h:10,yl:7,n:"100th Game"},
+{y:1976,h:14,yl:21},{y:1977,h:7,yl:24},{y:1978,h:35,yl:28},{y:1979,h:22,yl:7},
+{y:1980,h:0,yl:14},{y:1981,h:0,yl:28},{y:1982,h:45,yl:7},{y:1983,h:16,yl:7},
+{y:1984,h:17,yl:14},{y:1985,h:17,yl:6},{y:1986,h:17,yl:10},{y:1987,h:14,yl:10},
+{y:1988,h:17,yl:0},{y:1989,h:37,yl:20},{y:1990,h:19,yl:34},{y:1991,h:23,yl:7},
+{y:1992,h:14,yl:0},{y:1993,h:31,yl:23},{y:1994,h:0,yl:32},{y:1995,h:22,yl:21},
+{y:1996,h:10,yl:26},{y:1997,h:17,yl:7},{y:1998,h:9,yl:7},{y:1999,h:24,yl:37},
+{y:2000,h:34,yl:24},{y:2001,h:35,yl:23},{y:2002,h:20,yl:13},{y:2003,h:37,yl:19},
+{y:2004,h:35,yl:3,n:"Harvard's largest margin since 1915"},{y:2005,h:30,yl:24},
+{y:2006,h:34,yl:13},{y:2007,h:37,yl:6},{y:2008,h:10,yl:0},{y:2009,h:14,yl:10},
+{y:2010,h:28,yl:21},{y:2011,h:45,yl:7},{y:2012,h:34,yl:24},{y:2013,h:34,yl:7},
+{y:2014,h:31,yl:24},{y:2015,h:28,yl:21},{y:2016,h:21,yl:14},
+{y:2017,h:14,yl:21},{y:2018,h:45,yl:27},{y:2019,h:50,yl:43,n:"Highest combined score in rivalry history"},
+{y:2021,h:34,yl:31,n:"Returned after COVID cancellation"},
+{y:2022,h:19,yl:14},{y:2023,h:23,yl:18},{y:2024,h:23,yl:19},{y:2025,h:10,yl:24}
+];
+
+const MOMENTS=[
+{y:1875,t:"The Beginning",d:"The first-ever Harvard-Yale football game takes place at Hamilton Park in New Haven. Harvard wins 4-0 in a rugby-style contest watched by roughly 2,000 spectators. A rivalry is born."},
+{y:1903,t:"Birth of Harvard Stadium",d:"Harvard Stadium, the first large permanent reinforced concrete stadium in the world, opens. It would host The Game for over a century and inspire stadium architecture nationwide."},
+{y:1909,t:"The Forward Pass",d:"Rules changes legalizing the forward pass transform the game. Harvard and Yale help popularize the new style of play that would define American football."},
+{y:1934,t:"The Barry Wood Era Ends",d:"Yale defeats Harvard 14-0, ending an era dominated by Harvard's Barry Wood, considered one of the greatest Ivy League players ever."},
+{y:1957,t:"Yale's 54-0 Rout",d:"Yale demolishes Harvard 54-0 in one of the most lopsided games in rivalry history. The score remains the highest single-team total in The Game's annals."},
+{y:1968,t:"Harvard Beats Yale 29-29",d:"The most famous game in the rivalry — and arguably all of college football. Harvard, trailing 29-13 with 42 seconds left, scores 16 unanswered points to tie. The Harvard Crimson headline reads: 'Harvard Beats Yale 29-29.' Future actors Tommy Lee Jones (Harvard) and future political figures dot both rosters."},
+{y:1975,t:"The 100th Game",d:"The centennial edition of The Game draws massive national attention. Harvard edges Yale 10-7 in a hard-fought contest. The rivalry has become the gold standard for Ivy League football."},
+{y:2004,t:"Harvard's Dominant Streak",d:"Harvard demolishes Yale 35-3 during a period of unprecedented Crimson dominance — 9 consecutive wins from 2001-2009."},
+{y:2019,t:"Highest-Scoring Game Ever",d:"Harvard defeats Yale 50-43 in the highest-combined-score game in 144 years of rivalry history. 93 total points redefine what The Game can look like in the modern era."},
+{y:2021,t:"Post-COVID Return",d:"After a full year cancellation due to the pandemic, The Game returns. Harvard wins 34-31 in an emotional contest that reminds both fan bases what they'd been missing."}
+];
+
+// Compute stats
+let hW=0,yW=0,ties=0;
+GAMES.forEach(g=>{
+  const w=g.h>g.yl?'H':g.h<g.yl?'Y':'T';
+  g.w=w;
+  if(w==='H')hW++;else if(w==='Y')yW++;else ties++;
+});
+document.getElementById('h-wins').textContent=hW;
+document.getElementById('y-wins').textContent=yW;
+document.getElementById('ties-count').textContent=ties;
+document.getElementById('total-games').textContent=GAMES.length;
+
+// Stats bar
+const totalPts=GAMES.reduce((a,g)=>a+g.h+g.yl,0);
+const highestComb=GAMES.reduce((a,g)=>Math.max(a,g.h+g.yl),0);
+const shutouts=GAMES.filter(g=>g.h===0||g.yl===0).length;
+const statsHTML=[
+  {v:GAMES.length,l:'Games Played'},
+  {v:GAMES[GAMES.length-1].y-GAMES[0].y,l:'Years of Rivalry'},
+  {v:totalPts.toLocaleString(),l:'Total Points Scored'},
+  {v:shutouts,l:'Shutouts'},
+  {v:highestComb,l:'Highest Combined Score'}
+].map(s=>`<div class="stat-card"><div class="val">${s.v}</div><div class="label">${s.l}</div></div>`).join('');
+document.getElementById('stats-bar').innerHTML=statsHTML;
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Timeline
+function renderTimeline(games){
+  const decades={};
+  games.forEach(g=>{
+    const dec=Math.floor(g.y/10)*10+'s';
+    if(!decades[dec])decades[dec]=[];
+    decades[dec].push(g);
+  });
+  let html='';
+  Object.keys(decades).sort((a,b)=>parseInt(b)-parseInt(a)).forEach(dec=>{
+    html+=`<div class="decade-group"><h3>${dec}</h3>`;
+    decades[dec].sort((a,b)=>b.y-a.y).forEach(g=>{
+      const cls=g.w==='H'?'winner-h':g.w==='Y'?'winner-y':'winner-t';
+      html+=`<div class="game-row ${cls}"><span class="year">${g.y}</span><span class="note">${g.n||''}</span><span class="score"><span class="h">${g.h}</span> – <span class="y">${g.yl}</span></span></div>`;
+    });
+    html+=`</div>`;
+  });
+  document.getElementById('timeline').innerHTML=html||'<p style="color:var(--dim);padding:20px">No games match your filters.</p>';
+}
+
+// Era filter
+const eras=new Set();
+GAMES.forEach(g=>eras.add(Math.floor(g.y/10)*10+'s'));
+const eraSelect=document.getElementById('filter-era');
+[...eras].sort((a,b)=>parseInt(b)-parseInt(a)).forEach(e=>{
+  eraSelect.innerHTML+=`<option value="${e}">${e}</option>`;
+});
+
+function applyFilters(){
+  let filtered=[...GAMES];
+  const q=document.getElementById('search').value.toLowerCase();
+  const wf=document.getElementById('filter-winner').value;
+  const ef=document.getElementById('filter-era').value;
+  if(q)filtered=filtered.filter(g=>`${g.y} ${g.h} ${g.yl} ${g.n||''}`.toLowerCase().includes(q));
+  if(wf!=='all')filtered=filtered.filter(g=>g.w===wf);
+  if(ef!=='all')filtered=filtered.filter(g=>Math.floor(g.y/10)*10+'s'===ef);
+  renderTimeline(filtered);
+}
+document.getElementById('search').addEventListener('input',applyFilters);
+document.getElementById('filter-winner').addEventListener('change',applyFilters);
+document.getElementById('filter-era').addEventListener('change',applyFilters);
+renderTimeline(GAMES);
+
+// Moments
+document.getElementById('moments').innerHTML=MOMENTS.map(m=>`<div class="moment-card"><div class="moment-year">${m.y}</div><h4>${m.t}</h4><p>${m.d}</p></div>`).join('');
+
+// Streaks
+const bar=document.getElementById('streak-bar');
+GAMES.forEach(g=>{
+  const seg=document.createElement('div');
+  seg.className='seg '+(g.w==='H'?'h':g.w==='Y'?'y':'t');
+  seg.style.flex='1';
+  seg.title=`${g.y}: ${g.h}-${g.yl}`;
+  bar.appendChild(seg);
+});
+
+// Streak calculations
+let maxH=0,maxY=0,curH=0,curY=0,hStreakYears='',yStreakYears='',chStart=0,cyStart=0;
+GAMES.forEach(g=>{
+  if(g.w==='H'){curH++;if(curH===1)chStart=g.y;curY=0;}
+  else if(g.w==='Y'){curY++;if(curY===1)cyStart=g.y;curH=0;}
+  else{curH=0;curY=0;}
+  if(curH>maxH){maxH=curH;hStreakYears=`${chStart}-${g.y}`;}
+  if(curY>maxY){maxY=curY;yStreakYears=`${cyStart}-${g.y}`;}
+});
+
+document.getElementById('streak-stats').innerHTML=`
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+  <div class="stat-card"><div class="val" style="color:var(--accent)">${maxH}</div><div class="label">Longest Harvard Streak</div><div style="color:var(--dim);font-size:0.8rem;margin-top:4px">${hStreakYears}</div></div>
+  <div class="stat-card"><div class="val" style="color:var(--accent2)">${maxY}</div><div class="label">Longest Yale Streak</div><div style="color:var(--dim);font-size:0.8rem;margin-top:4px">${yStreakYears}</div></div>
+</div>
+`;
+</script>
+</body>
+</html>
