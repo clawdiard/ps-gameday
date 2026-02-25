@@ -161,6 +161,18 @@ footer{text-align:center;padding:40px 24px;color:var(--dim);font-size:0.8rem;bor
       <span class="lt">Tie</span>
     </div>
     <div id="streak-stats" style="margin-top:24px"></div>
+
+    <h3 style="margin:32px 0 12px">Win Probability by Decade</h3>
+    <p style="color:var(--dim);font-size:0.85rem;margin-bottom:16px">Rolling win percentage for each team across every decade of the rivalry.</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px">
+      <canvas id="winProbChart" height="320"></canvas>
+    </div>
+
+    <h3 style="margin:32px 0 12px">Cumulative Win Percentage Over Time</h3>
+    <p style="color:var(--dim);font-size:0.85rem;margin-bottom:16px">Running win rate after each game — watch the lead change hands across 150 years.</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px">
+      <canvas id="cumulativeChart" height="320"></canvas>
+    </div>
   </div>
 </div>
 
@@ -336,6 +348,77 @@ document.getElementById('streak-stats').innerHTML=`
   <div class="stat-card"><div class="val" style="color:var(--accent2)">${maxY}</div><div class="label">Longest Yale Streak</div><div style="color:var(--dim);font-size:0.8rem;margin-top:4px">${yStreakYears}</div></div>
 </div>
 `;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+  // Decade win probability chart
+  const decades={};
+  GAMES.forEach(g=>{
+    const dec=Math.floor(g.y/10)*10+'s';
+    if(!decades[dec])decades[dec]={h:0,y:0,t:0,total:0};
+    decades[dec].total++;
+    if(g.w==='H')decades[dec].h++;
+    else if(g.w==='Y')decades[dec].y++;
+    else decades[dec].t++;
+  });
+  const decLabels=Object.keys(decades).sort();
+  const hPcts=decLabels.map(d=>Math.round(decades[d].h/decades[d].total*100));
+  const yPcts=decLabels.map(d=>Math.round(decades[d].y/decades[d].total*100));
+  const tPcts=decLabels.map(d=>Math.round(decades[d].t/decades[d].total*100));
+
+  new Chart(document.getElementById('winProbChart'),{
+    type:'bar',
+    data:{
+      labels:decLabels,
+      datasets:[
+        {label:'Harvard Win %',data:hPcts,backgroundColor:'rgba(196,30,58,0.85)',borderRadius:4},
+        {label:'Yale Win %',data:yPcts,backgroundColor:'rgba(0,53,107,0.85)',borderRadius:4},
+        {label:'Tie %',data:tPcts,backgroundColor:'rgba(42,42,58,0.85)',borderRadius:4}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{labels:{color:'#8888a0',font:{family:'Georgia'}}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+'%'}}},
+      scales:{
+        x:{stacked:true,ticks:{color:'#8888a0',font:{family:'Georgia'}},grid:{color:'rgba(42,42,58,0.5)'}},
+        y:{stacked:true,max:100,ticks:{color:'#8888a0',callback:v=>v+'%',font:{family:'Georgia'}},grid:{color:'rgba(42,42,58,0.5)'}}
+      }
+    }
+  });
+
+  // Cumulative win % line chart
+  let cH=0,cY=0;
+  const cumLabels=[],cumHData=[],cumYData=[];
+  GAMES.forEach((g,i)=>{
+    if(g.w==='H')cH++;else if(g.w==='Y')cY++;
+    const n=i+1;
+    cumLabels.push(g.y);
+    cumHData.push(Math.round(cH/n*1000)/10);
+    cumYData.push(Math.round(cY/n*1000)/10);
+  });
+
+  new Chart(document.getElementById('cumulativeChart'),{
+    type:'line',
+    data:{
+      labels:cumLabels,
+      datasets:[
+        {label:'Harvard Win %',data:cumHData,borderColor:'#c41e3a',backgroundColor:'rgba(196,30,58,0.1)',fill:true,tension:0.3,pointRadius:0,pointHitRadius:8,borderWidth:2},
+        {label:'Yale Win %',data:cumYData,borderColor:'#00356b',backgroundColor:'rgba(0,53,107,0.1)',fill:true,tension:0.3,pointRadius:0,pointHitRadius:8,borderWidth:2},
+        {label:'50% Line',data:cumLabels.map(()=>50),borderColor:'rgba(136,136,160,0.3)',borderDash:[5,5],borderWidth:1,pointRadius:0,fill:false}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{labels:{color:'#8888a0',font:{family:'Georgia'}}}},
+      scales:{
+        x:{ticks:{color:'#8888a0',maxTicksLimit:15,font:{family:'Georgia'}},grid:{color:'rgba(42,42,58,0.3)'}},
+        y:{min:0,max:100,ticks:{color:'#8888a0',callback:v=>v+'%',font:{family:'Georgia'}},grid:{color:'rgba(42,42,58,0.3)'}}
+      },
+      interaction:{mode:'index',intersect:false}
+    }
+  });
+})();
 </script>
 </body>
 </html>
