@@ -55,10 +55,30 @@ a{color:var(--gold);text-decoration:none}
 .winner-t{border-left:3px solid var(--dim);padding-left:9px!important}
 
 /* Famous Moments */
-.moment-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:16px}
+.moment-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:20px;display:grid;grid-template-columns:180px 1fr;transition:transform 0.2s,box-shadow 0.2s}
+.moment-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+.moment-illust{display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;position:relative;overflow:hidden}
+.moment-illust .illust-icon{font-size:3.2rem;margin-bottom:8px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4));z-index:1}
+.moment-illust .illust-year{font-size:2rem;font-weight:700;opacity:0.15;position:absolute;bottom:8px;right:12px;font-family:Georgia,serif}
+.moment-illust.era-1800s{background:linear-gradient(135deg,#1a1208,#2a1f10)}
+.moment-illust.era-1900s{background:linear-gradient(135deg,#0d1a12,#1a2a1f)}
+.moment-illust.era-1930s{background:linear-gradient(135deg,#1a1418,#2a1f25)}
+.moment-illust.era-1950s{background:linear-gradient(135deg,#0d0d1a,#1a1a2a)}
+.moment-illust.era-1960s{background:linear-gradient(135deg,#1a0d0d,#2a1a1a)}
+.moment-illust.era-1970s{background:linear-gradient(135deg,#1a1a0d,#2a2a1a)}
+.moment-illust.era-2000s{background:linear-gradient(135deg,#0d1a1a,#1a2a2a)}
+.moment-illust.era-2010s{background:linear-gradient(135deg,#0d0d1a,#1a1a2f)}
+.moment-illust.era-2020s{background:linear-gradient(135deg,#0d1a12,#1a2a1f)}
+.moment-body{padding:24px}
 .moment-card .moment-year{font-size:0.8rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold);margin-bottom:4px}
 .moment-card h4{font-size:1.15rem;margin-bottom:8px}
 .moment-card p{color:var(--dim);font-size:0.92rem;line-height:1.7}
+.moment-card .moment-tag{display:inline-block;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;padding:3px 8px;border-radius:3px;margin-top:10px;background:var(--surface2);color:var(--dim);border:1px solid var(--border)}
+@media(max-width:700px){
+  .moment-card{grid-template-columns:1fr}
+  .moment-illust{padding:16px;flex-direction:row;gap:12px}
+  .moment-illust .illust-icon{font-size:2.4rem;margin-bottom:0}
+}
 
 /* Streaks */
 .streak-bar{display:flex;height:18px;border-radius:4px;overflow:hidden;margin:16px 0}
@@ -197,16 +217,16 @@ const GAMES=[
 ];
 
 const MOMENTS=[
-{y:1875,t:"The Beginning",d:"The first-ever Harvard-Yale football game takes place at Hamilton Park in New Haven. Harvard wins 4-0 in a rugby-style contest watched by roughly 2,000 spectators. A rivalry is born."},
-{y:1903,t:"Birth of Harvard Stadium",d:"Harvard Stadium, the first large permanent reinforced concrete stadium in the world, opens. It would host The Game for over a century and inspire stadium architecture nationwide."},
-{y:1909,t:"The Forward Pass",d:"Rules changes legalizing the forward pass transform the game. Harvard and Yale help popularize the new style of play that would define American football."},
-{y:1934,t:"The Barry Wood Era Ends",d:"Yale defeats Harvard 14-0, ending an era dominated by Harvard's Barry Wood, considered one of the greatest Ivy League players ever."},
-{y:1957,t:"Yale's 54-0 Rout",d:"Yale demolishes Harvard 54-0 in one of the most lopsided games in rivalry history. The score remains the highest single-team total in The Game's annals."},
-{y:1968,t:"Harvard Beats Yale 29-29",d:"The most famous game in the rivalry — and arguably all of college football. Harvard, trailing 29-13 with 42 seconds left, scores 16 unanswered points to tie. The Harvard Crimson headline reads: 'Harvard Beats Yale 29-29.' Future actors Tommy Lee Jones (Harvard) and future political figures dot both rosters."},
-{y:1975,t:"The 100th Game",d:"The centennial edition of The Game draws massive national attention. Harvard edges Yale 10-7 in a hard-fought contest. The rivalry has become the gold standard for Ivy League football."},
-{y:2004,t:"Harvard's Dominant Streak",d:"Harvard demolishes Yale 35-3 during a period of unprecedented Crimson dominance — 9 consecutive wins from 2001-2009."},
-{y:2019,t:"Highest-Scoring Game Ever",d:"Harvard defeats Yale 50-43 in the highest-combined-score game in 144 years of rivalry history. 93 total points redefine what The Game can look like in the modern era."},
-{y:2021,t:"Post-COVID Return",d:"After a full year cancellation due to the pandemic, The Game returns. Harvard wins 34-31 in an emotional contest that reminds both fan bases what they'd been missing."}
+{y:1875,t:"The Beginning",d:"The first-ever Harvard-Yale football game takes place at Hamilton Park in New Haven. Harvard wins 4-0 in a rugby-style contest watched by roughly 2,000 spectators. A rivalry is born.",icon:"🏈",era:"era-1800s",tag:"Origin Story"},
+{y:1903,t:"Birth of Harvard Stadium",d:"Harvard Stadium, the first large permanent reinforced concrete stadium in the world, opens. It would host The Game for over a century and inspire stadium architecture nationwide.",icon:"🏟️",era:"era-1900s",tag:"Architecture"},
+{y:1909,t:"The Forward Pass",d:"Rules changes legalizing the forward pass transform the game. Harvard and Yale help popularize the new style of play that would define American football.",icon:"🏈",era:"era-1900s",tag:"Rule Change"},
+{y:1934,t:"The Barry Wood Era Ends",d:"Yale defeats Harvard 14-0, ending an era dominated by Harvard's Barry Wood, considered one of the greatest Ivy League players ever.",icon:"👤",era:"era-1930s",tag:"Legend"},
+{y:1957,t:"Yale's 54-0 Rout",d:"Yale demolishes Harvard 54-0 in one of the most lopsided games in rivalry history. The score remains the highest single-team total in The Game's annals.",icon:"💥",era:"era-1950s",tag:"Record"},
+{y:1968,t:"Harvard Beats Yale 29-29",d:"The most famous game in the rivalry — and arguably all of college football. Harvard, trailing 29-13 with 42 seconds left, scores 16 unanswered points to tie. The Harvard Crimson headline reads: 'Harvard Beats Yale 29-29.' Future actors Tommy Lee Jones (Harvard) and future political figures dot both rosters.",icon:"📰",era:"era-1960s",tag:"Legendary"},
+{y:1975,t:"The 100th Game",d:"The centennial edition of The Game draws massive national attention. Harvard edges Yale 10-7 in a hard-fought contest. The rivalry has become the gold standard for Ivy League football.",icon:"💯",era:"era-1970s",tag:"Milestone"},
+{y:2004,t:"Harvard's Dominant Streak",d:"Harvard demolishes Yale 35-3 during a period of unprecedented Crimson dominance — 9 consecutive wins from 2001-2009.",icon:"🔥",era:"era-2000s",tag:"Dominance"},
+{y:2019,t:"Highest-Scoring Game Ever",d:"Harvard defeats Yale 50-43 in the highest-combined-score game in 144 years of rivalry history. 93 total points redefine what The Game can look like in the modern era.",icon:"⚡",era:"era-2010s",tag:"Record"},
+{y:2021,t:"Post-COVID Return",d:"After a full year cancellation due to the pandemic, The Game returns. Harvard wins 34-31 in an emotional contest that reminds both fan bases what they'd been missing.",icon:"🎉",era:"era-2020s",tag:"Comeback"}
 ];
 
 // Compute stats
@@ -288,7 +308,7 @@ document.getElementById('filter-era').addEventListener('change',applyFilters);
 renderTimeline(GAMES);
 
 // Moments
-document.getElementById('moments').innerHTML=MOMENTS.map(m=>`<div class="moment-card"><div class="moment-year">${m.y}</div><h4>${m.t}</h4><p>${m.d}</p></div>`).join('');
+document.getElementById('moments').innerHTML=MOMENTS.map(m=>`<div class="moment-card"><div class="moment-illust ${m.era}"><div class="illust-icon">${m.icon}</div><div class="illust-year">${m.y}</div></div><div class="moment-body"><div class="moment-year">${m.y}</div><h4>${m.t}</h4><p>${m.d}</p><span class="moment-tag">${m.tag}</span></div></div>`).join('');
 
 // Streaks
 const bar=document.getElementById('streak-bar');
