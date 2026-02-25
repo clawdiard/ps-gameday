@@ -98,6 +98,24 @@ a{color:var(--gold);text-decoration:none}
 .filter-bar input{flex:1;min-width:200px}
 .filter-bar select{min-width:140px}
 
+/* Venue History */
+.venue-section{margin-top:32px}
+.venue-section h3{font-size:1rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--gold);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.venue-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:16px;display:grid;grid-template-columns:64px 1fr;gap:16px;align-items:start}
+.venue-card .venue-icon{font-size:2.8rem;text-align:center}
+.venue-card h4{font-size:1.1rem;margin-bottom:4px}
+.venue-card .venue-meta{font-size:0.82rem;color:var(--gold);margin-bottom:8px}
+.venue-card p{font-size:0.9rem;color:var(--dim);line-height:1.7}
+.venue-card .venue-stats{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap}
+.venue-card .venue-stat{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 14px;text-align:center}
+.venue-card .venue-stat .v{font-size:1.2rem;font-weight:700;color:var(--gold)}
+.venue-card .venue-stat .l{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);margin-top:2px}
+@media(max-width:700px){.venue-card{grid-template-columns:1fr}.venue-card .venue-icon{text-align:left}}
+
+/* Attendance badge */
+.game-row .attendance{font-size:0.75rem;color:var(--dim);opacity:0.7}
+.attendance-note{font-size:0.8rem;color:var(--dim);margin-bottom:16px;font-style:italic}
+
 /* Footer */
 footer{text-align:center;padding:40px 24px;color:var(--dim);font-size:0.8rem;border-top:1px solid var(--border);margin-top:48px}
 
@@ -137,6 +155,7 @@ footer{text-align:center;padding:40px 24px;color:var(--dim);font-size:0.8rem;bor
     <div class="tab active" data-tab="timeline">All Games</div>
     <div class="tab" data-tab="moments">Famous Moments</div>
     <div class="tab" data-tab="streaks">Streaks & Trends</div>
+    <div class="tab" data-tab="venues">Venues</div>
   </div>
 
   <div class="tab-content active" id="tab-timeline">
@@ -174,6 +193,10 @@ footer{text-align:center;padding:40px 24px;color:var(--dim);font-size:0.8rem;bor
       <canvas id="cumulativeChart" height="320"></canvas>
     </div>
   </div>
+
+  <div class="tab-content" id="tab-venues">
+    <div id="venues"></div>
+  </div>
 </div>
 
 <footer>
@@ -182,16 +205,17 @@ footer{text-align:center;padding:40px 24px;color:var(--dim);font-size:0.8rem;bor
 
 <script>
 const GAMES=[
-{y:1875,h:4,yl:0,n:"First ever meeting, Hamilton Park, New Haven"},
-{y:1876,h:1,yl:0},{y:1877,h:0,yl:1},{y:1878,h:1,yl:0},{y:1879,h:0,yl:2},
-{y:1880,h:1,yl:0},{y:1881,h:4,yl:0},{y:1882,h:1,yl:0},{y:1883,h:23,yl:2},
+{y:1875,h:4,yl:0,n:"First ever meeting, Hamilton Park, New Haven",att:2000,v:"Hamilton Park"},
+{y:1876,h:1,yl:0,v:"Hamilton Park"},{y:1877,h:0,yl:1,v:"Hamilton Park"},{y:1878,h:1,yl:0,v:"Hamilton Park"},{y:1879,h:0,yl:2,v:"Hamilton Park"},
+{y:1880,h:1,yl:0,v:"Hamilton Park"},{y:1881,h:4,yl:0,v:"Hamilton Park"},{y:1882,h:1,yl:0,v:"Hamilton Park"},{y:1883,h:23,yl:2},
 {y:1884,h:0,yl:48},{y:1885,h:4,yl:0},{y:1886,h:29,yl:4},{y:1887,h:17,yl:8},
 {y:1888,h:17,yl:6},{y:1889,h:6,yl:0},{y:1890,h:12,yl:6},{y:1891,h:0,yl:6},
 {y:1892,h:0,yl:6},{y:1893,h:0,yl:6},{y:1894,h:4,yl:12},{y:1895,h:0,yl:4},
 {y:1896,h:6,yl:0},{y:1897,h:0,yl:0,n:"Scoreless tie"},{y:1898,h:17,yl:0},
 {y:1899,h:0,yl:0,n:"Scoreless tie"},{y:1900,h:0,yl:28},{y:1901,h:22,yl:0},
 {y:1902,h:0,yl:23},{y:1903,h:16,yl:0},{y:1904,h:0,yl:12},{y:1905,h:6,yl:0},
-{y:1906,h:0,yl:6},{y:1907,h:0,yl:12},{y:1908,h:4,yl:0},{y:1909,h:8,yl:0,n:"Opening of Harvard Stadium"},
+{y:1906,h:0,yl:6},{y:1907,h:0,yl:12},{y:1908,h:4,yl:0},
+{y:1909,h:8,yl:0,n:"Opening of Harvard Stadium",att:22000,v:"Harvard Stadium"},
 {y:1910,h:0,yl:0,n:"Scoreless tie"},{y:1911,h:0,yl:0,n:"Scoreless tie"},
 {y:1912,h:20,yl:0},{y:1913,h:15,yl:5},{y:1914,h:36,yl:0},
 {y:1915,h:41,yl:0},{y:1916,h:3,yl:6},{y:1917,h:0,yl:0,n:"Wartime scoreless tie"},
@@ -200,7 +224,8 @@ const GAMES=[
 {y:1926,h:7,yl:0},{y:1927,h:14,yl:0},{y:1928,h:17,yl:0},{y:1929,h:10,yl:6},
 {y:1930,h:13,yl:0},{y:1931,h:3,yl:0},{y:1932,h:19,yl:0},{y:1933,h:19,yl:6},
 {y:1934,h:0,yl:14},{y:1935,h:7,yl:14},{y:1936,h:13,yl:7},{y:1937,h:13,yl:6},
-{y:1938,h:7,yl:0},{y:1939,h:7,yl:20},{y:1940,h:28,yl:0},{y:1941,h:14,yl:0},
+{y:1938,h:7,yl:0},{y:1939,h:7,yl:20},{y:1940,h:28,yl:0,att:40000,v:"Harvard Stadium"},
+{y:1941,h:14,yl:0},
 {y:1942,h:3,yl:7},{y:1943,h:7,yl:0,n:"Wartime game"},{y:1944,h:7,yl:13},
 {y:1945,h:0,yl:28},{y:1946,h:7,yl:27},{y:1947,h:21,yl:31},{y:1948,h:20,yl:7},
 {y:1949,h:6,yl:29},{y:1950,h:6,yl:14},{y:1951,h:21,yl:14},
@@ -209,23 +234,38 @@ const GAMES=[
 {y:1958,h:28,yl:0},{y:1959,h:35,yl:6},{y:1960,h:6,yl:39},
 {y:1961,h:27,yl:0},{y:1962,h:14,yl:6},{y:1963,h:6,yl:20},{y:1964,h:18,yl:14},
 {y:1965,h:0,yl:36},{y:1966,h:0,yl:17},{y:1967,h:0,yl:24},
-{y:1968,h:29,yl:29,n:"'Harvard Beats Yale 29-29' — legendary 16-pt comeback"},
-{y:1969,h:7,yl:0},{y:1970,h:14,yl:12},{y:1971,h:35,yl:16},{y:1972,h:0,yl:28},
-{y:1973,h:0,yl:35},{y:1974,h:21,yl:16},{y:1975,h:10,yl:7,n:"100th Game"},
-{y:1976,h:14,yl:21},{y:1977,h:7,yl:24},{y:1978,h:35,yl:28},{y:1979,h:22,yl:7},
-{y:1980,h:0,yl:14},{y:1981,h:0,yl:28},{y:1982,h:45,yl:7},{y:1983,h:16,yl:7},
-{y:1984,h:17,yl:14},{y:1985,h:17,yl:6},{y:1986,h:17,yl:10},{y:1987,h:14,yl:10},
-{y:1988,h:17,yl:0},{y:1989,h:37,yl:20},{y:1990,h:19,yl:34},{y:1991,h:23,yl:7},
-{y:1992,h:14,yl:0},{y:1993,h:31,yl:23},{y:1994,h:0,yl:32},{y:1995,h:22,yl:21},
-{y:1996,h:10,yl:26},{y:1997,h:17,yl:7},{y:1998,h:9,yl:7},{y:1999,h:24,yl:37},
-{y:2000,h:34,yl:24},{y:2001,h:35,yl:23},{y:2002,h:20,yl:13},{y:2003,h:37,yl:19},
-{y:2004,h:35,yl:3,n:"Harvard's largest margin since 1915"},{y:2005,h:30,yl:24},
-{y:2006,h:34,yl:13},{y:2007,h:37,yl:6},{y:2008,h:10,yl:0},{y:2009,h:14,yl:10},
-{y:2010,h:28,yl:21},{y:2011,h:45,yl:7},{y:2012,h:34,yl:24},{y:2013,h:34,yl:7},
-{y:2014,h:31,yl:24},{y:2015,h:28,yl:21},{y:2016,h:21,yl:14},
-{y:2017,h:14,yl:21},{y:2018,h:45,yl:27},{y:2019,h:50,yl:43,n:"Highest combined score in rivalry history"},
-{y:2021,h:34,yl:31,n:"Returned after COVID cancellation"},
-{y:2022,h:19,yl:14},{y:2023,h:23,yl:18},{y:2024,h:23,yl:19},{y:2025,h:10,yl:24}
+{y:1968,h:29,yl:29,n:"'Harvard Beats Yale 29-29' — legendary 16-pt comeback",att:40280,v:"Harvard Stadium"},
+{y:1969,h:7,yl:0,att:25000,v:"Yale Bowl"},{y:1970,h:14,yl:12,att:38000,v:"Harvard Stadium"},
+{y:1971,h:35,yl:16,att:25000,v:"Yale Bowl"},{y:1972,h:0,yl:28,att:35000,v:"Harvard Stadium"},
+{y:1973,h:0,yl:35,att:27000,v:"Yale Bowl"},{y:1974,h:21,yl:16,att:37000,v:"Harvard Stadium"},
+{y:1975,h:10,yl:7,n:"100th Game",att:38000,v:"Harvard Stadium"},
+{y:1976,h:14,yl:21,att:32500,v:"Yale Bowl"},{y:1977,h:7,yl:24,att:28500,v:"Yale Bowl"},
+{y:1978,h:35,yl:28,att:36500,v:"Harvard Stadium"},{y:1979,h:22,yl:7,att:30000,v:"Yale Bowl"},
+{y:1980,h:0,yl:14,att:32000,v:"Harvard Stadium"},{y:1981,h:0,yl:28,att:28000,v:"Yale Bowl"},
+{y:1982,h:45,yl:7,att:35000,v:"Harvard Stadium"},{y:1983,h:16,yl:7,att:30000,v:"Yale Bowl"},
+{y:1984,h:17,yl:14,att:34500,v:"Harvard Stadium"},{y:1985,h:17,yl:6,att:27000,v:"Yale Bowl"},
+{y:1986,h:17,yl:10,att:33000,v:"Harvard Stadium"},{y:1987,h:14,yl:10,att:28000,v:"Yale Bowl"},
+{y:1988,h:17,yl:0,att:31000,v:"Harvard Stadium"},{y:1989,h:37,yl:20,att:26000,v:"Yale Bowl"},
+{y:1990,h:19,yl:34,att:32000,v:"Harvard Stadium"},{y:1991,h:23,yl:7,att:27000,v:"Yale Bowl"},
+{y:1992,h:14,yl:0,att:30000,v:"Harvard Stadium"},{y:1993,h:31,yl:23,att:25000,v:"Yale Bowl"},
+{y:1994,h:0,yl:32,att:31000,v:"Harvard Stadium"},{y:1995,h:22,yl:21,att:28000,v:"Yale Bowl"},
+{y:1996,h:10,yl:26,att:30000,v:"Harvard Stadium"},{y:1997,h:17,yl:7,att:26000,v:"Yale Bowl"},
+{y:1998,h:9,yl:7,att:29000,v:"Harvard Stadium"},{y:1999,h:24,yl:37,att:54000,v:"Yale Bowl"},
+{y:2000,h:34,yl:24,att:30323,v:"Harvard Stadium"},{y:2001,h:35,yl:23,att:51200,v:"Yale Bowl"},
+{y:2002,h:20,yl:13,att:30323,v:"Harvard Stadium"},{y:2003,h:37,yl:19,att:53412,v:"Yale Bowl"},
+{y:2004,h:35,yl:3,n:"Harvard's largest margin since 1915",att:30323,v:"Harvard Stadium"},
+{y:2005,h:30,yl:24,att:54142,v:"Yale Bowl"},
+{y:2006,h:34,yl:13,att:30323,v:"Harvard Stadium"},{y:2007,h:37,yl:6,att:55000,v:"Yale Bowl"},
+{y:2008,h:10,yl:0,att:30323,v:"Harvard Stadium"},{y:2009,h:14,yl:10,att:54251,v:"Yale Bowl"},
+{y:2010,h:28,yl:21,att:30323,v:"Harvard Stadium"},{y:2011,h:45,yl:7,att:52484,v:"Yale Bowl"},
+{y:2012,h:34,yl:24,att:30323,v:"Harvard Stadium"},{y:2013,h:34,yl:7,att:51654,v:"Yale Bowl"},
+{y:2014,h:31,yl:24,att:30323,v:"Harvard Stadium"},{y:2015,h:28,yl:21,att:50211,v:"Yale Bowl"},
+{y:2016,h:21,yl:14,att:30323,v:"Harvard Stadium"},
+{y:2017,h:14,yl:21,att:48032,v:"Yale Bowl"},{y:2018,h:45,yl:27,att:30323,v:"Harvard Stadium"},
+{y:2019,h:50,yl:43,n:"Highest combined score in rivalry history",att:47000,v:"Yale Bowl"},
+{y:2021,h:34,yl:31,n:"Returned after COVID cancellation",att:28000,v:"Harvard Stadium"},
+{y:2022,h:19,yl:14,att:48212,v:"Yale Bowl"},{y:2023,h:23,yl:18,att:30323,v:"Harvard Stadium"},
+{y:2024,h:23,yl:19,att:49145,v:"Yale Bowl"},{y:2025,h:10,yl:24,att:30323,v:"Harvard Stadium"}
 ];
 
 const MOMENTS=[
@@ -289,7 +329,8 @@ function renderTimeline(games){
     html+=`<div class="decade-group"><h3>${dec}</h3>`;
     decades[dec].sort((a,b)=>b.y-a.y).forEach(g=>{
       const cls=g.w==='H'?'winner-h':g.w==='Y'?'winner-y':'winner-t';
-      html+=`<div class="game-row ${cls}"><span class="year">${g.y}</span><span class="note">${g.n||''}</span><span class="score"><span class="h">${g.h}</span> – <span class="y">${g.yl}</span></span></div>`;
+      const attStr=g.att?`<span class="attendance">👥 ${g.att.toLocaleString()}</span>`:'';
+      html+=`<div class="game-row ${cls}"><span class="year">${g.y}</span><span class="note">${g.n||''}${g.n&&g.att?' · ':''}${attStr}</span><span class="score"><span class="h">${g.h}</span> – <span class="y">${g.yl}</span></span></div>`;
     });
     html+=`</div>`;
   });
@@ -321,8 +362,8 @@ renderTimeline(GAMES);
 
 // Moments
 document.getElementById('moments').innerHTML=MOMENTS.map(m=>`<div class="moment-card"><div class="moment-illust ${m.era}"><div class="illust-icon">${m.icon}</div><div class="illust-year">${m.y}</div></div><div class="moment-body"><div class="moment-year">${m.y}</div><h4>${m.t}</h4><p>${m.d}</p><span class="moment-tag">${m.tag}</span></div></div>`).join('');
-
-// Streaks
+</script>
+<script>
 const bar=document.getElementById('streak-bar');
 GAMES.forEach(g=>{
   const seg=document.createElement('div');
@@ -419,6 +460,43 @@ document.getElementById('streak-stats').innerHTML=`
     }
   });
 })();
+
+// Venues
+const VENUES=[
+  {name:"Hamilton Park",loc:"New Haven, CT",years:"1875–1882",icon:"🏔️",
+   desc:"The birthplace of the rivalry. This New Haven grounds hosted the first Harvard-Yale football game in 1875 and several subsequent meetings. A modest field by modern standards, it witnessed the birth of what would become America's most storied college football rivalry.",
+   capacity:"~3,000",gamesHosted:8,firstGame:1875,lastGame:1882},
+  {name:"Harvard Stadium",loc:"Boston, MA",years:"1903–present",icon:"🏟️",
+   desc:"The first large permanent reinforced concrete stadium in the world, opened in 1903. Its distinctive horseshoe shape seats 30,323 and has been The Game's Cambridge home for over a century. The stadium's concrete construction was revolutionary and influenced stadium architecture worldwide.",
+   capacity:"30,323",gamesHosted:0,firstGame:1903,lastGame:2025},
+  {name:"Yale Bowl",loc:"New Haven, CT",years:"1914–present",icon:"🏟️",
+   desc:"Opened in 1914, the Yale Bowl was the first bowl-shaped stadium in the world and inspired the Rose Bowl's design. With a capacity exceeding 61,000 (now reduced to ~54,000 for modernization), it remains one of the largest venues in Ivy League athletics and has hosted some of the rivalry's most memorable moments.",
+   capacity:"61,446 (historic) / ~54,000 (current)",gamesHosted:0,firstGame:1914,lastGame:2025}
+];
+GAMES.forEach(g=>{if(g.v){const venue=VENUES.find(v=>v.name===g.v);if(venue)venue.gamesHosted++;}});
+VENUES.forEach(v=>{
+  const vG=GAMES.filter(g=>g.v===v.name&&g.att);
+  v.avgAtt=vG.length?Math.round(vG.reduce((a,g)=>a+g.att,0)/vG.length):null;
+  v.peakAtt=vG.length?Math.max(...vG.map(g=>g.att)):null;
+  v.peakYear=vG.length?vG.find(g=>g.att===v.peakAtt)?.y:null;
+});
+document.getElementById('venues').innerHTML=`
+<div class="venue-section">
+  <h3>Historic Venues of The Game</h3>
+  <p class="attendance-note">The rivalry has called three iconic venues home across 150 years.</p>
+  ${VENUES.map(v=>`<div class="venue-card"><div class="venue-icon">${v.icon}</div><div><h4>${v.name}</h4><div class="venue-meta">${v.loc} · ${v.years} · Capacity: ${v.capacity}</div><p>${v.desc}</p><div class="venue-stats"><div class="venue-stat"><div class="v">${v.gamesHosted}</div><div class="l">Games Hosted</div></div>${v.avgAtt?`<div class="venue-stat"><div class="v">${v.avgAtt.toLocaleString()}</div><div class="l">Avg Attendance</div></div>`:``}${v.peakAtt?`<div class="venue-stat"><div class="v">${v.peakAtt.toLocaleString()}</div><div class="l">Peak (${v.peakYear})</div></div>`:``}</div></div></div>`).join('')}
+</div>
+<div class="venue-section" style="margin-top:32px">
+  <h3>Attendance Over Time</h3>
+  <p class="attendance-note">Attendance figures where available — colored by venue (red = Harvard Stadium, blue = Yale Bowl, gold = other).</p>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px"><canvas id="attendanceChart" height="280"></canvas></div>
+</div>`;
+const attGames=GAMES.filter(g=>g.att);
+new Chart(document.getElementById('attendanceChart'),{
+  type:'bar',
+  data:{labels:attGames.map(g=>g.y),datasets:[{label:'Attendance',data:attGames.map(g=>g.att),backgroundColor:attGames.map(g=>g.v==='Harvard Stadium'?'rgba(196,30,58,0.7)':g.v==='Yale Bowl'?'rgba(0,53,107,0.7)':'rgba(212,168,67,0.7)'),borderRadius:3}]},
+  options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y.toLocaleString()} at ${attGames[ctx.dataIndex].v||'Unknown'}`}}},scales:{x:{ticks:{color:'#8888a0',maxTicksLimit:20,font:{family:'Georgia'}},grid:{color:'rgba(42,42,58,0.3)'}},y:{ticks:{color:'#8888a0',callback:v=>v>=1000?(v/1000)+'k':v,font:{family:'Georgia'}},grid:{color:'rgba(42,42,58,0.3)'}}}}
+});
 </script>
 </body>
 </html>
